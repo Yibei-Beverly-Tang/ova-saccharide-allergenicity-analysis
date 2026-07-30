@@ -1,0 +1,4 @@
+branch,outcome,f_statistic,p_value,interpretation
+Non-enzymatic,modification_extent_pct,88.49252603231108,3.5456539454926934e-10,Simulated-data demonstration only; not a biological result.
+TG-assisted,modification_extent_pct,112.85307318377478,5.624787837491367e-11,Simulated-data demonstration only; not a biological result.
+Tyr/CA-assisted,modification_extent_pct,39.223075661831935,5.454399294132705e-06,Simulated-data demonstration only; not a biological result.
