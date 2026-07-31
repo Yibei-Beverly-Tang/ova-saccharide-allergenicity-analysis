@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ova-saccharide-allergenicity-analysis"
+version = "0.2.0"
+description = "Traceable public-data analysis of ovalbumin, saccharides, and allergenicity evidence"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Yibei Beverly Tang" }]
+dependencies = []
+
+[project.scripts]
+ova-analysis = "ova_analysis.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+

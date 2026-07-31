@@ -1,0 +1,9 @@
+study_id,publication_year,doi,pmid,treatment,metric,value,unit,comparator,evidence_level,source_location,notes
+Wang_2013,2013,10.1016/j.foodchem.2013.04.045,23790877,Native OVA,sequence_coverage,100,percent,OVA sequence,abstract_reported_summary,Abstract,Sequence coverage reported for unglycated OVA
+Wang_2013,2013,10.1016/j.foodchem.2013.04.045,23790877,Glycated OVA,sequence_coverage,95,percent,OVA sequence,abstract_reported_summary,Abstract,Sequence coverage reported for glycated OVA
+Wang_2013,2013,10.1016/j.foodchem.2013.04.045,23790877,Microwave-heated OVA-glucose,modified_lysines,35.2,percent,total lysines,abstract_reported_summary,Abstract,Approximate percentage stated by the authors
+Wang_2013,2013,10.1016/j.foodchem.2013.04.045,23790877,Conventionally heated OVA-glucose,modified_lysines,40.8,percent,total lysines,abstract_reported_summary,Abstract,Approximate percentage stated by the authors
+Hwang_2014,2014,10.1016/j.bbrc.2014.06.101,,De-N-acetylglucosaminylated OVA,relative_IgE_production,58.8,percent of intact OVA,intact OVA,abstract_reported_summary,Abstract,Mouse immunization study
+Hwang_2014,2014,10.1016/j.bbrc.2014.06.101,,De-N-acetylglucosaminylated OVA,relative_IL4_production,53.4,percent of intact OVA,intact OVA,abstract_reported_summary,Abstract,Mouse immunization study
+Hwang_2014,2014,10.1016/j.bbrc.2014.06.101,,De-N-acetylglucosaminylated OVA,relative_IL5_production,45.8,percent of intact OVA,intact OVA,abstract_reported_summary,Abstract,Mouse immunization study
+
