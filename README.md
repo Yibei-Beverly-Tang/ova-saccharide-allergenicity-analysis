@@ -92,6 +92,17 @@ therapeutic efficacy.
 See [PRIVACY.md](PRIVACY.md). Generated outputs and private-data directories are
 ignored to reduce accidental disclosure risk.
 
+## Roadmap
+
+- [x] Replace synthetic examples with traceable public data
+- [x] Add OVA sequence characterization
+- [x] Validate literature residue numbering against UniProt P01012
+- [ ] Map glycation and glycosylation sites onto the PDB 1OVA structure
+- [ ] Integrate experimentally validated OVA epitopes from IEDB
+- [ ] Analyze spatial relationships between modification sites and epitopes
+- [ ] Add evidence-quality classification
+- [ ] Add automated validation with GitHub Actions
+
 ## License
 
 MIT. Referenced sequences and publication data remain subject to their source
