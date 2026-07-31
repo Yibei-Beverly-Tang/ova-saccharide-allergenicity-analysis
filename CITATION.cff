@@ -1,0 +1,18 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite the repository and the primary data sources listed in the README."
+title: "OVA–Saccharide Allergenicity Analysis"
+version: 0.3.0
+date-released: 2026-07-31
+authors:
+  - family-names: "Tang"
+    given-names: "Yibei Beverly"
+repository-code: "https://github.com/Yibei-Beverly-Tang/ova-saccharide-allergenicity-analysis"
+license: MIT
+keywords:
+  - ovalbumin
+  - glycation
+  - glycosylation
+  - allergenicity
+  - protein structure
+  - bioinformatics
+
