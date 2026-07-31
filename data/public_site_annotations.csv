@@ -1,0 +1,9 @@
+study_id,publication_year,doi,pmid,annotation_type,residue,reported_position,reference_context,evidence_level,notes
+Ito_2007,2007,10.1093/glycob/cwl077,17167044,N-linked glycosylation,Asn,292,published study numbering,abstract_reported_annotation,OVA reported as mono-N-glycosylated at Asn-292 despite two potential sites
+Mao_2023,2023,10.1016/j.ijbiomac.2023.123640,,glycation-associated site,Arg,84,published study numbering,abstract_reported_annotation,Reported for fructose/galactose-conjugated OVA
+Mao_2023,2023,10.1016/j.ijbiomac.2023.123640,,glycation-associated site,Lys,92,published study numbering,abstract_reported_annotation,Reported for fructose/galactose-conjugated OVA
+Mao_2023,2023,10.1016/j.ijbiomac.2023.123640,,glycation-associated site,Lys,206,published study numbering,abstract_reported_annotation,Reported for fructose/galactose-conjugated OVA
+Mao_2023,2023,10.1016/j.ijbiomac.2023.123640,,glycation-associated site,Lys,263,published study numbering,abstract_reported_annotation,Reported for fructose/galactose-conjugated OVA
+Mao_2023,2023,10.1016/j.ijbiomac.2023.123640,,glycation-associated site,Lys,322,published study numbering,abstract_reported_annotation,Reported for fructose/galactose-conjugated OVA
+Mao_2023,2023,10.1016/j.ijbiomac.2023.123640,,glycation-associated site,Arg,381,published study numbering,abstract_reported_annotation,Reported for fructose/galactose-conjugated OVA
+

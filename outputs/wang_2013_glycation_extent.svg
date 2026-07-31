@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="246" viewBox="0 0 800 246">
+<rect width="100%" height="100%" fill="#fbfcfe"/>
+<style>text{font-family:Arial,sans-serif;fill:#172033}.title{font-size:20px;font-weight:700}.label{font-size:13px}.value{font-size:13px;fill:#43506a}</style>
+<text x="28" y="38" class="title">Wang 2013: modified lysines</text>
+<text x="28" y="64" class="value">Percent of total lysines; approximate abstract-reported values</text>
+<text x="28" y="118" class="label">modified lysines — Microwave-heated OVA-glucose</text>
+<rect x="270" y="98" width="151.36" height="26" rx="5" fill="#457b9d"/>
+<text x="430.36" y="117" class="value">35.2%</text>
+<text x="28" y="176" class="label">modified lysines — Conventionally heated OVA-glucose</text>
+<rect x="270" y="156" width="175.44" height="26" rx="5" fill="#457b9d"/>
+<text x="454.44" y="175" class="value">40.8%</text>
+</svg>

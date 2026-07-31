@@ -1,0 +1,2 @@
+identifier,length_aa,molecular_weight_da,theoretical_pi,gravy,aromaticity_percent,aliphatic_index,lysine_count,arginine_count,candidate_basic_residues,n_glycosylation_sequon_count,n_glycosylation_sequons
+sp|P01012|OVAL_CHICK,386,42881.24,5.023,-0.001,8.549,89.948,20,15,35,2,NLT@293; NLS@312

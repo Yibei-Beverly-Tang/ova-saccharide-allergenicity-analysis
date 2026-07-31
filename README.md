@@ -1,132 +1,98 @@
-# OVA Saccharide Modification: A Python Analysis Prototype
+# OVA–Saccharide Allergenicity Analysis
 
-A reproducible Python prototype for planning and testing a future data-analysis
-workflow for ovalbumin (OVA) saccharide modification research.
+A reproducible Python project combining **ovalbumin protein characterization**
+with **traceable publication-reported evidence** about glycation,
+N-glycan modification and immune-response measurements.
 
-> **Project status:** computational prototype only. No wet-lab experiment has
-> been conducted for this repository. Every numerical value is simulated and
-> must not be interpreted as an experimental result or biological conclusion.
+This public version contains no résumé, manuscript draft, unpublished result or
+private experimental dataset. It also contains no invented replicate values.
 
-## Why I Built This Project
+## Included real public data
 
-This project translates an undergraduate food-science research question into a
-transparent data structure and analysis workflow. It was developed to practise
-Python, experimental-data organization, control-relative calculations,
-exploratory statistics, scientific visualization, and reproducible research
-before real laboratory data become available.
+- Reviewed chicken ovalbumin sequence:
+  [UniProtKB P01012](https://www.uniprot.org/uniprotkb/P01012/entry), 386 aa.
+- Wang et al. (2013), DOI
+  [10.1016/j.foodchem.2013.04.045](https://doi.org/10.1016/j.foodchem.2013.04.045):
+  abstract-reported sequence coverage and percentages of glucose-modified
+  lysines after microwave or conventional heating.
+- Hwang et al. (2014), DOI
+  [10.1016/j.bbrc.2014.06.101](https://doi.org/10.1016/j.bbrc.2014.06.101):
+  abstract-reported IgE, IL-4 and IL-5 production relative to intact OVA after
+  terminal N-acetylglucosamine cleavage.
+- Ito et al. (2007), DOI
+  [10.1093/glycob/cwl077](https://doi.org/10.1093/glycob/cwl077):
+  abstract-reported OVA N-glycosylation annotation.
+- Mao et al. (2023), DOI
+  [10.1016/j.ijbiomac.2023.123640](https://doi.org/10.1016/j.ijbiomac.2023.123640):
+  abstract-reported glycation-associated residues.
 
-## What Is Real and What Is Simulated?
+Every numerical row retains its DOI, PMID when available, comparator, unit,
+source location and evidence level.
 
-| Component | Status |
-|---|---|
-| Research topic and prospective experimental structure | Based on my SRDP planning |
-| Saccharide classes and candidate analysis indicators | Based on the proposed study design |
-| Python scripts, calculations, tests, and figures | Fully implemented and reproducible |
-| All measurement values in the CSV files | Simulated for demonstration |
-| Statistical outputs and apparent treatment patterns | Demonstration only |
-| Experimental or clinical conclusions | None |
+## Analysis
 
-## Prospective Research Question
+Protein sequence module:
 
-How could representative disaccharide, oligosaccharide, and polysaccharide
-systems be compared in a future OVA modification study across:
+- FASTA validation;
+- length and unmodified molecular-mass estimate;
+- theoretical pI, GRAVY, aromaticity and aliphatic index;
+- Lys/Arg abundance;
+- canonical `N-X-S/T` sequon scanning (`X ≠ P`).
 
-1. non-enzymatic glycation;
-2. transglutaminase (TG)-assisted glycosylation; and
-3. tyrosinase/caffeic-acid (Tyr/CA)-assisted glycosylation?
+Evidence module:
 
-The representative saccharides used in this prototype are:
+- validates public literature-summary tables;
+- rejects records without traceable study metadata;
+- preserves publication residue numbering;
+- creates source-specific charts without pooling incompatible experiments.
 
-- **Lactose** — disaccharide
-- **Mannotriose** — oligosaccharide
-- **Dextran** — polysaccharide
+## Run
 
-Their inclusion represents a proposed comparison framework, not a completed
-experimental selection or efficacy ranking.
-
-## Analysis Workflow
-
-```mermaid
-flowchart LR
-    A[Proposed experimental design] --> B[Simulated tidy dataset]
-    B --> C[Schema and control validation]
-    C --> D[Control-relative calculations]
-    D --> E[Exploratory summary and ANOVA]
-    E --> F[Scientific figures and reusable outputs]
-```
-
-The workflow:
-
-- generates a clearly labelled, reproducible simulated dataset;
-- validates the input schema and branch-specific control groups;
-- calculates modification extent relative to each branch control;
-- calculates IgE-binding reduction relative to each branch control;
-- summarizes results by proposed reaction branch and saccharide;
-- runs one-way ANOVA as an exploratory programming demonstration;
-- creates publication-style figures;
-- accepts future experimental measurements in the same data format.
-
-## Example Outputs
-
-The figures below visualize simulated values only.
-
-![Simulated modification extent](outputs/figures/modification_extent.png)
-
-![Simulated modification extent versus IgE binding](outputs/figures/modification_vs_ige.png)
-
-## Repository Structure
-
-```text
-.
-├── data/
-├── docs/
-├── outputs/
-├── src/
-├── tests/
-├── requirements.txt
-└── README.md
-```
-
-## Quick Start
+No third-party Python packages are required.
 
 ```bash
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-
-python src/generate_example_data.py
-python src/analyze_experiment.py
-python -m unittest discover -s tests -v
+PYTHONPATH=src python -m ova_analysis.cli \
+  --fasta sequences/ova_uniprot_P01012.fasta \
+  --evidence data/public_literature_values.csv \
+  --sites data/public_site_annotations.csv \
+  --out-dir outputs
 ```
 
-Windows activation command:
+Generated locally:
 
-```powershell
-.venv\Scripts\activate
+- `outputs/report.md`
+- `outputs/protein_summary.csv`
+- `outputs/literature_evidence.csv`
+- `outputs/validated_site_annotations.csv`
+- `outputs/hwang_2014_relative_response.svg`
+- `outputs/wang_2013_glycation_extent.svg`
+
+Run tests:
+
+```bash
+PYTHONPATH=src python -m unittest discover -s tests -v
 ```
 
-## Future Use
+## Important evidence limitation
 
-If properly collected experimental data become available, a separate copy of
-the CSV can be prepared using the schema in `data/README.md`. Any real analysis
-would still require confirmation of experimental design, biological
-replication, statistical assumptions, multiple-comparison procedures, and
-appropriate immunological validation.
+The cited publications do not provide individual replicate measurements in
+their abstracts. This repository therefore uses the values strictly as
+**publication-reported summaries**, not as raw observations. It does not invent
+sample sizes, standard deviations, error bars or p-values.
 
-## Skills Demonstrated
+Protein properties are sequence-based estimates and do not model
+post-translational modifications. Motif scanning does not confirm occupancy.
+The validation step maps publication residue numbering to the UniProt sequence
+and records any 0, +1 or −1 numbering offset explicitly.
+The project does not establish clinical allergenicity, causality, safety or
+therapeutic efficacy.
 
-- Python data handling with pandas and NumPy
-- control-relative metric calculation
-- exploratory statistics with SciPy
-- scientific visualization with Matplotlib and Seaborn
-- reproducible dataset generation
-- input validation and automated testing
-- translation of a research plan into a computational workflow
+## Privacy
 
-## Author
+See [PRIVACY.md](PRIVACY.md). Generated outputs and private-data directories are
+ignored to reduce accidental disclosure risk.
 
-**Yibei (Beverly) Tang**  
-Food Science undergraduate, Ocean University of China and the University of
-Adelaide  
-[GitHub](https://github.com/Yibei-Beverly-Tang) ·
-[LinkedIn](https://www.linkedin.com/in/yibei-tang-309b1b3b8)
+## License
+
+MIT. Referenced sequences and publication data remain subject to their source
+terms and attribution requirements.
