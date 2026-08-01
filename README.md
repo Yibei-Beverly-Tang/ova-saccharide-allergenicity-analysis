@@ -29,6 +29,10 @@ private experimental dataset. It also contains no invented replicate values.
 - RCSB PDB [1OVA](https://www.rcsb.org/structure/1OVA), DOI
   [10.2210/pdb1OVA/pdb](https://doi.org/10.2210/pdb1OVA/pdb):
   X-ray structure of uncleaved ovalbumin at 1.95 Å resolution.
+- IEDB reference T-cell epitopes
+  [58560](https://www.iedb.org/epitope/58560) (`SIINFEKL`) and
+  [28676](https://www.iedb.org/epitope/28676) (`ISQAVHAAHAEINEAGR`),
+  retained as a conservative snapshot of positive experimental assay records.
 
 Every numerical row retains its DOI, PMID when available, comparator, unit,
 source location and evidence level.
@@ -49,6 +53,19 @@ Evidence module:
 - rejects records without traceable study metadata;
 - preserves publication residue numbering;
 - creates source-specific charts without pooling incompatible experiments.
+
+Epitope module:
+
+- validates a dated, conservative snapshot of positive IEDB T-cell evidence;
+- rejects missing provenance, duplicate IDs and invalid evidence counts;
+- maps each peptide by an exact, unique match to UniProt P01012;
+- preserves the distinction between assay rows, references and biological
+  replication;
+- generates a machine-readable table, sequence map and limitations report.
+
+The committed IEDB snapshot can be regenerated from the official query API
+with `scripts/update_iedb_epitopes.py`; no epitope counts are entered by
+estimation or imputation.
 
 Three-dimensional structure module:
 
@@ -82,6 +99,7 @@ PYTHONPATH=src python -m ova_analysis.cli \
   --fasta sequences/ova_uniprot_P01012.fasta \
   --evidence data/public_literature_values.csv \
   --sites data/public_site_annotations.csv \
+  --epitopes data/public_iedb_epitopes.csv \
   --structure-pdb structures/1OVA.pdb \
   --structure-cif structures/1OVA.cif \
   --out-dir outputs
@@ -93,6 +111,9 @@ Generated locally:
 - `outputs/protein_summary.csv`
 - `outputs/literature_evidence.csv`
 - `outputs/validated_site_annotations.csv`
+- `outputs/validated_iedb_epitopes.csv`
+- `outputs/iedb_epitope_map.svg`
+- `outputs/epitope_report.md`
 - `outputs/hwang_2014_relative_response.svg`
 - `outputs/wang_2013_glycation_extent.svg`
 - `outputs/structure_report.md`
@@ -126,6 +147,12 @@ and records any 0, +1 or −1 numbering offset explicitly.
 The project does not establish clinical allergenicity, causality, safety or
 therapeutic efficacy.
 
+IEDB positive assay rows are not effect sizes or counts of independent
+biological replications. The current epitope snapshot is deliberately limited
+to two canonical reference T-cell epitopes and is not an exhaustive catalog of
+overlapping OVA peptides. Most supporting records use mouse models; T-cell
+reactivity is not equivalent to human IgE binding or clinical food allergy.
+
 Structure distances are geometric descriptors for one crystallographic state.
 They do not demonstrate biochemical interaction or altered allergenicity.
 Chain-centroid distance is not a substitute for solvent-accessibility
@@ -137,7 +164,8 @@ calculation, and B-factors are refinement-dependent.
 - [x] Add OVA sequence characterization
 - [x] Validate literature residue numbering against UniProt P01012
 - [x] Map public modification sites onto the experimental PDB 1OVA structure
-- [ ] Integrate experimentally validated OVA epitopes from IEDB
+- [x] Integrate a conservative reference set of experimentally observed OVA
+  T-cell epitopes from IEDB
 - [ ] Analyze spatial relationships between modification sites and epitopes
 - [ ] Add solvent-accessible surface-area calculations
 - [ ] Add evidence-quality classification

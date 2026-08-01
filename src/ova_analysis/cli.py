@@ -11,9 +11,12 @@ from .evidence import (
     read_literature_values,
     read_site_annotations,
 )
+from .epitopes import EPITOPE_COLUMNS, map_epitopes_to_sequence, read_iedb_epitopes
 from .protein import analyze_record, read_fasta
 from .report import (
     write_csv,
+    write_epitope_report,
+    write_epitope_svg,
     write_evidence_svg,
     write_protein_summary,
     write_pymol_script,
@@ -34,6 +37,7 @@ def parser() -> argparse.ArgumentParser:
     result.add_argument("--fasta", required=True)
     result.add_argument("--evidence", required=True)
     result.add_argument("--sites", required=True)
+    result.add_argument("--epitopes", required=True)
     result.add_argument("--structure-pdb", default="structures/1OVA.pdb")
     result.add_argument("--structure-cif", default="structures/1OVA.cif")
     result.add_argument("--out-dir", default="outputs")
@@ -55,6 +59,9 @@ def main(argv: list[str] | None = None) -> int:
     if len(records) != 1:
         raise ValueError("Site mapping requires exactly one reference FASTA record")
     sites = map_sites_to_sequence(read_site_annotations(args.sites), records[0].sequence)
+    epitopes = map_epitopes_to_sequence(
+        read_iedb_epitopes(args.epitopes), records[0].sequence
+    )
     structure_sites, pairwise = analyze_structure_sites(
         sites,
         records[0].sequence,
@@ -91,6 +98,14 @@ def main(argv: list[str] | None = None) -> int:
         "Percent of total lysines; approximate abstract-reported values",
     )
     write_report(output / "report.md", proteins, evidence, sites)
+    epitope_fields = list(EPITOPE_COLUMNS) + [
+        "uniprot_start", "uniprot_end", "sequence_validation",
+    ]
+    write_csv(output / "validated_iedb_epitopes.csv", epitopes, epitope_fields)
+    write_epitope_svg(
+        output / "iedb_epitope_map.svg", epitopes, len(records[0].sequence)
+    )
+    write_epitope_report(output / "epitope_report.md", epitopes)
     structure_fields = [
         "study_id", "doi", "annotation_type", "residue", "reported_position",
         "uniprot_position", "pdb_id", "pdb_chain", "pdb_residue_name",

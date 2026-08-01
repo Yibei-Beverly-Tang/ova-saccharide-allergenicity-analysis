@@ -73,6 +73,110 @@ def write_evidence_svg(
     path.write_text("\n".join(parts), encoding="utf-8")
 
 
+def write_epitope_svg(
+    path: Path,
+    rows: list[dict[str, object]],
+    protein_length: int,
+) -> None:
+    """Draw validated linear epitopes on the P01012 sequence axis."""
+    if not rows or protein_length < 1:
+        raise ValueError("Cannot draw an empty epitope map")
+    width, height = 980, 150 + 62 * len(rows)
+    left, axis_width = 95, 790
+    scale = axis_width / protein_length
+    axis_y = 92
+    parts = [
+        f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" '
+        f'viewBox="0 0 {width} {height}">',
+        '<rect width="100%" height="100%" fill="#fbfcfe"/>',
+        '<style>text{font-family:Arial,sans-serif;fill:#172033}.title{font-size:20px;'
+        'font-weight:700}.label{font-size:13px}.value{font-size:12px;fill:#43506a}</style>',
+        '<text x="28" y="36" class="title">IEDB OVA linear epitopes mapped to P01012</text>',
+        '<text x="28" y="61" class="value">Exact unique sequence matches; 386-aa reference</text>',
+        f'<line x1="{left}" y1="{axis_y}" x2="{left + axis_width}" y2="{axis_y}" '
+        'stroke="#7b879d" stroke-width="5" stroke-linecap="round"/>',
+        f'<text x="{left - 4}" y="{axis_y - 12}" class="value">1</text>',
+        f'<text x="{left + axis_width - 22}" y="{axis_y - 12}" class="value">'
+        f'{protein_length}</text>',
+    ]
+    colors = ["#457b9d", "#e76f51", "#2a9d8f", "#8f5aa8"]
+    for index, row in enumerate(rows):
+        y = 124 + 62 * index
+        start = int(row["uniprot_start"])
+        end = int(row["uniprot_end"])
+        x = left + (start - 1) * scale
+        bar_width = max(5.0, (end - start + 1) * scale)
+        label = html.escape(
+            f"IEDB {row['iedb_epitope_id']}  {row['linear_sequence']}  "
+            f"P01012 {start}-{end}"
+        )
+        evidence = html.escape(
+            f"{row['positive_assay_count']} / {row['total_assay_count']} positive rows; "
+            f"{row['positive_reference_count']} references"
+        )
+        parts.extend([
+            f'<rect x="{x:.2f}" y="{y}" width="{bar_width:.2f}" height="18" '
+            f'rx="4" fill="{colors[index % len(colors)]}"/>',
+            f'<text x="{left}" y="{y + 38}" class="label">{label}</text>',
+            f'<text x="{left + 480}" y="{y + 38}" class="value">{evidence}</text>',
+        ])
+    parts.append("</svg>")
+    path.write_text("\n".join(parts), encoding="utf-8")
+
+
+def write_epitope_report(path: Path, rows: list[dict[str, object]]) -> None:
+    """Write a traceable summary of the conservative IEDB epitope snapshot."""
+    retrieved_dates = sorted({str(row["retrieved_date"]) for row in rows})
+    lines = [
+        "# Experimentally Observed OVA Epitope Report",
+        "",
+        "> This is a conservative, non-exhaustive IEDB snapshot. Positive assay "
+        "records do not by themselves establish human clinical allergenicity.",
+        "",
+        "## Inclusion criteria",
+        "",
+        "- Linear peptide assigned by IEDB to ovalbumin / UniProt P01012.",
+        "- At least one positive T-cell assay record.",
+        "- Peptide sequence maps exactly and uniquely to the repository's P01012 sequence.",
+        "- Canonical reference epitopes only; overlapping peptide-scan variants are excluded.",
+        "",
+        f"IEDB data retrieved through the official query API: "
+        f"{', '.join(retrieved_dates)}.",
+        "",
+        "## Validated reference epitopes",
+        "",
+        "| IEDB epitope | Sequence | P01012 interval | Response | Most common MHC | "
+        "All assay rows | Positive rows | Positive references |",
+        "|---|---|---:|---|---|---:|---:|---:|",
+    ]
+    for row in rows:
+        lines.append(
+            f"| [IEDB {row['iedb_epitope_id']}]({row['source_url']}) | "
+            f"`{row['linear_sequence']}` | {row['uniprot_start']}-{row['uniprot_end']} | "
+            f"{row['immune_response_type']} | {row['most_common_positive_mhc']} | "
+            f"{row['total_assay_count']} | {row['positive_assay_count']} | "
+            f"{row['positive_reference_count']} |"
+        )
+    lines.extend([
+        "",
+        "Counts summarize positive rows and distinct reference IDs returned by the IEDB "
+        "query API for each epitope ID. They are database-record counts, not effect sizes "
+        "or counts of independent biological replications.",
+        "",
+        "## Interpretation limits",
+        "",
+        "- Most records use mouse hosts and mouse MHC contexts.",
+        "- A T-cell response is not equivalent to IgE binding or clinical food allergy.",
+        "- Negative records also exist and are not erased by reporting positive counts.",
+        "- The snapshot is intentionally not an exhaustive catalog of overlapping peptides.",
+        "- Database content can change after the recorded retrieval date.",
+        "",
+        "![IEDB OVA epitope sequence map](iedb_epitope_map.svg)",
+        "",
+    ])
+    path.write_text("\n".join(lines), encoding="utf-8")
+
+
 def write_report(
     path: Path,
     proteins: list[dict[str, object]],

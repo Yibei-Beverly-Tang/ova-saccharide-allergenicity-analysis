@@ -1,5 +1,26 @@
 # Changelog
 
+## [0.4.0] - 2026-08-02
+
+### Added
+
+- Conservative IEDB snapshot for canonical OVA T-cell epitopes 58560 and
+  28676, including positive assay-row and distinct-reference counts.
+- Exact, unique peptide-to-UniProt P01012 sequence mapping.
+- Machine-readable validated epitope output, Markdown limitations report and
+  SVG sequence map.
+- Epitope validation and end-to-end workflow tests.
+- Reproducible IEDB API updater with strict source-antigen and sequence checks.
+
+### Scientific safeguards
+
+- Overlapping peptide-scan variants are not represented as independent
+  validated epitopes.
+- Positive IEDB rows are not represented as effect sizes or independent
+  biological replications.
+- Mouse T-cell evidence is not interpreted as human IgE binding or clinical
+  food allergy.
+
 ## [0.3.1] - 2026-08-02
 
 ### Added
