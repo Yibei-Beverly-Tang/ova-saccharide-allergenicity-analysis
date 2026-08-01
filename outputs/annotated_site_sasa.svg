@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="479" viewBox="0 0 900 479">
+<rect width="100%" height="100%" fill="#fbfcfe"/>
+<style>text{font-family:Arial,sans-serif;fill:#172033}.title{font-size:20px;font-weight:700}.label{font-size:13px}.value{font-size:12px;fill:#43506a}</style>
+<text x="28" y="36" class="title">1OVA annotated-site SASA</text>
+<text x="28" y="61" class="value">Shrake–Rupley; 1.4 Å probe; 960 points; chain A + NAG</text>
+<text x="28" y="102" class="label">Arg-381 → P01012 382 → PDB 387</text>
+<rect x="330" y="84" width="39.12" height="24" rx="4" fill="#8fb9cf"/>
+<rect x="330" y="84" width="39.12" height="24" rx="4" fill="#457b9d"/>
+<text x="377.12" y="102" class="value">12.6 Å²</text>
+<text x="28" y="154" class="label">Arg-84 → P01012 85 → PDB 97</text>
+<rect x="330" y="136" width="97.98" height="24" rx="4" fill="#8fb9cf"/>
+<rect x="330" y="136" width="97.59" height="24" rx="4" fill="#457b9d"/>
+<text x="435.98" y="154" class="value">31.6 Å²</text>
+<text x="28" y="206" class="label">Asn-292 → P01012 293 → PDB 298</text>
+<rect x="330" y="188" width="114.94" height="24" rx="4" fill="#8fb9cf"/>
+<rect x="330" y="188" width="74.05" height="24" rx="4" fill="#457b9d"/>
+<text x="452.94" y="206" class="value">37.1 Å²</text>
+<text x="28" y="258" class="label">Lys-322 → P01012 323 → PDB 328</text>
+<rect x="330" y="240" width="204.67" height="24" rx="4" fill="#8fb9cf"/>
+<rect x="330" y="240" width="204.67" height="24" rx="4" fill="#457b9d"/>
+<text x="542.67" y="258" class="value">66.0 Å²</text>
+<text x="28" y="310" class="label">Lys-206 → P01012 207 → PDB 216</text>
+<rect x="330" y="292" width="223.74" height="24" rx="4" fill="#8fb9cf"/>
+<rect x="330" y="292" width="215.94" height="24" rx="4" fill="#457b9d"/>
+<text x="561.74" y="310" class="value">72.2 Å²</text>
+<text x="28" y="362" class="label">Lys-263 → P01012 264 → PDB 271</text>
+<rect x="330" y="344" width="226.06" height="24" rx="4" fill="#8fb9cf"/>
+<rect x="330" y="344" width="224.18" height="24" rx="4" fill="#457b9d"/>
+<text x="564.06" y="362" class="value">72.9 Å²</text>
+<text x="28" y="414" class="label">Lys-92 → P01012 93 → PDB 105</text>
+<rect x="330" y="396" width="390.91" height="24" rx="4" fill="#8fb9cf"/>
+<rect x="330" y="396" width="364.32" height="24" rx="4" fill="#457b9d"/>
+<text x="728.91" y="414" class="value">126.1 Å²</text>
+</svg>

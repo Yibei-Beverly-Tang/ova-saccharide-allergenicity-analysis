@@ -1,5 +1,31 @@
 # Changelog
 
+## [1.0.0] - 2026-08-02
+
+### Added
+
+- Deterministic Shrake–Rupley solvent-accessible surface-area analysis with a
+  1.4 Å probe, 960 sphere points per atom and documented elemental radii.
+- Residue-level total, backbone and side-chain SASA for 383 resolved 1OVA
+  chain-A residues with same-chain NAG occlusion.
+- SASA tables and summaries for all annotated modification sites and both IEDB
+  epitope intervals, plus a Markdown report and SVG chart.
+- Record-level evidence classification by provenance, granularity, replication
+  status, reanalysis readiness and primary limitation.
+- Analytical sphere-area and atom-occlusion tests for the SASA implementation.
+
+### Scientific safeguards
+
+- Absolute SASA is not converted to relative SASA or exposed/buried labels
+  without method-specific reference maxima.
+- Accessibility is not interpreted as chemical reactivity or immune recognition.
+- Evidence classes are descriptive and non-ranked; no numerical quality score
+  or unavailable study statistic is invented.
+
+### Milestone
+
+- Completed every item in the original project roadmap.
+
 ## [0.5.0] - 2026-08-02
 
 ### Added

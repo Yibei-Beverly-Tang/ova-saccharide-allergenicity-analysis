@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import csv
+from collections import Counter
 import html
 from pathlib import Path
 
@@ -286,6 +287,159 @@ def write_site_epitope_report(
         "- These results do not establish human IgE binding or clinical food allergy.",
         "",
         "![Modification-site to epitope distances](site_epitope_distances.svg)",
+        "",
+    ])
+    path.write_text("\n".join(lines), encoding="utf-8")
+
+
+def write_sasa_svg(path: Path, site_rows: list[dict[str, object]]) -> None:
+    """Draw absolute residue SASA for annotated modification sites."""
+    if not site_rows:
+        raise ValueError("Cannot draw an empty SASA chart")
+    ordered = sorted(site_rows, key=lambda row: float(row["total_sasa_angstrom2"]))
+    width, height = 900, 115 + 52 * len(ordered)
+    left, chart_width = 330, 430
+    maximum = max(float(row["total_sasa_angstrom2"]) for row in ordered)
+    scale = chart_width / max(1.0, maximum * 1.1)
+    parts = [
+        f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" '
+        f'viewBox="0 0 {width} {height}">',
+        '<rect width="100%" height="100%" fill="#fbfcfe"/>',
+        '<style>text{font-family:Arial,sans-serif;fill:#172033}.title{font-size:20px;'
+        'font-weight:700}.label{font-size:13px}.value{font-size:12px;fill:#43506a}</style>',
+        '<text x="28" y="36" class="title">1OVA annotated-site SASA</text>',
+        '<text x="28" y="61" class="value">Shrake–Rupley; 1.4 Å probe; 960 points; chain A + NAG</text>',
+    ]
+    for index, row in enumerate(ordered):
+        y = 84 + 52 * index
+        total = float(row["total_sasa_angstrom2"])
+        sidechain = float(row["sidechain_sasa_angstrom2"])
+        label = html.escape(
+            f"{row['residue']}-{row['reported_position']} → "
+            f"P01012 {row['uniprot_position']} → PDB {row['pdb_residue_id']}"
+        )
+        parts.extend([
+            f'<text x="28" y="{y + 18}" class="label">{label}</text>',
+            f'<rect x="{left}" y="{y}" width="{total * scale:.2f}" height="24" '
+            'rx="4" fill="#8fb9cf"/>',
+            f'<rect x="{left}" y="{y}" width="{sidechain * scale:.2f}" height="24" '
+            'rx="4" fill="#457b9d"/>',
+            f'<text x="{left + total * scale + 8:.2f}" y="{y + 18}" class="value">'
+            f'{total:.1f} Å²</text>',
+        ])
+    parts.append("</svg>")
+    path.write_text("\n".join(parts), encoding="utf-8")
+
+
+def write_sasa_report(
+    path: Path,
+    residue_rows: list[dict[str, object]],
+    site_rows: list[dict[str, object]],
+    epitope_rows: list[dict[str, object]],
+) -> None:
+    """Write the reproducible residue-level SASA report."""
+    settings = residue_rows[0]
+    lines = [
+        "# OVA Solvent-Accessible Surface-Area Report",
+        "",
+        "## Method",
+        "",
+        "SASA was calculated with a deterministic Shrake–Rupley point-sampling "
+        "implementation using Bondi-style elemental van der Waals radii.",
+        "",
+        f"- Structure context: {settings['occlusion_context']}",
+        f"- Solvent probe radius: {settings['probe_radius_angstrom']} Å",
+        f"- Sphere points per atom: {settings['sphere_point_count']}",
+        f"- Resolved protein residues reported: {len(residue_rows)}",
+        "- Hydrogen atoms are absent from the deposited X-ray model.",
+        "",
+        "Algorithm reference: [Shrake and Rupley (1973)]"
+        "(https://doi.org/10.1016/0006-3495(73)90011-9). Atomic-radius reference: "
+        "[Bondi (1964)](https://doi.org/10.1021/j100785a001).",
+        "",
+        "## Annotated modification sites",
+        "",
+        "| Reported site | P01012 | PDB | Total SASA | Side-chain SASA |",
+        "|---|---:|---|---:|---:|",
+    ]
+    for row in sorted(site_rows, key=lambda item: int(item["uniprot_position"])):
+        lines.append(
+            f"| {row['residue']}-{row['reported_position']} | "
+            f"{row['uniprot_position']} | {row['pdb_residue_name']}"
+            f"{row['pdb_residue_id']} | {row['total_sasa_angstrom2']} Å² | "
+            f"{row['sidechain_sasa_angstrom2']} Å² |"
+        )
+    lines.extend([
+        "",
+        "## IEDB epitope intervals",
+        "",
+        "| IEDB epitope | P01012 interval | Residues | Total SASA | Mean per residue | "
+        "Side-chain SASA |",
+        "|---|---:|---:|---:|---:|---:|",
+    ])
+    for row in epitope_rows:
+        lines.append(
+            f"| [IEDB {row['iedb_epitope_id']}]({row['source_url']}) | "
+            f"{row['uniprot_start']}-{row['uniprot_end']} | "
+            f"{row['resolved_residue_count']} | {row['total_sasa_angstrom2']} Å² | "
+            f"{row['mean_residue_sasa_angstrom2']} Å² | "
+            f"{row['sidechain_sasa_angstrom2']} Å² |"
+        )
+    lines.extend([
+        "",
+        "## Interpretation limits",
+        "",
+        "- Values are absolute SASA for one crystal structure, not relative SASA.",
+        "- No exposed/buried threshold is assigned because reference maxima vary by method.",
+        "- Crystal packing, missing hydrogens and conformational dynamics can alter SASA.",
+        "- Accessibility does not establish chemical reactivity or immune recognition.",
+        "",
+        "![Annotated-site SASA](annotated_site_sasa.svg)",
+        "",
+    ])
+    path.write_text("\n".join(lines), encoding="utf-8")
+
+
+def write_quality_report(path: Path, rows: list[dict[str, object]]) -> None:
+    """Write a non-ranked evidence provenance and analytical-scope report."""
+    counts = Counter(str(row["quality_class"]) for row in rows)
+    lines = [
+        "# Evidence Quality and Analytical-Scope Report",
+        "",
+        "> Classes describe provenance, granularity and reanalysis limits. They are "
+        "not numeric scores and do not rank biological truth.",
+        "",
+        "## Classification summary",
+        "",
+        "| Quality class | Records | Meaning |",
+        "|---|---:|---|",
+        f"| limited_abstract_summary | {counts['limited_abstract_summary']} | "
+        "Traceable numerical summary without raw observations |",
+        f"| limited_abstract_annotation | {counts['limited_abstract_annotation']} | "
+        "Traceable site annotation without complete site-level measurements |",
+        f"| curated_experimental_database_aggregate | "
+        f"{counts['curated_experimental_database_aggregate']} | "
+        "Curated experimental database counts with heterogeneous, non-independent rows |",
+        "",
+        "## Record-level classification",
+        "",
+        "| Record | Source | Class | Granularity | Reanalysis readiness |",
+        "|---|---|---|---|---|",
+    ]
+    for row in rows:
+        lines.append(
+            f"| {row['source_record_id']} | {row['source_identifier']} | "
+            f"{row['quality_class']} | {row['data_granularity']} | "
+            f"{row['quantitative_reanalysis_readiness']} |"
+        )
+    lines.extend([
+        "",
+        "## Safeguards",
+        "",
+        "- No p-values, effect sizes, sample sizes or uncertainty estimates are invented.",
+        "- IEDB assay rows are not treated as independent biological replicates.",
+        "- A traceable source can still have limited granularity or model relevance.",
+        "- Classification does not replace formal study-level risk-of-bias assessment.",
         "",
     ])
     path.write_text("\n".join(lines), encoding="utf-8")

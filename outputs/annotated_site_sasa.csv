@@ -1,0 +1,8 @@
+study_id,doi,annotation_type,residue,reported_position,uniprot_position,pdb_residue_name,pdb_residue_id,total_sasa_angstrom2,backbone_sasa_angstrom2,sidechain_sasa_angstrom2,probe_radius_angstrom,sphere_point_count,occlusion_context
+Ito_2007,10.1093/glycob/cwl077,N-linked glycosylation,Asn,292,293,ASN,298,37.078,13.192,23.886,1.4,960,1OVA chain A protein plus chain A NAG
+Mao_2023,10.1016/j.ijbiomac.2023.123640,glycation-associated site,Arg,84,85,ARG,97,31.607,0.126,31.481,1.4,960,1OVA chain A protein plus chain A NAG
+Mao_2023,10.1016/j.ijbiomac.2023.123640,glycation-associated site,Lys,92,93,LYS,105,126.102,8.576,117.526,1.4,960,1OVA chain A protein plus chain A NAG
+Mao_2023,10.1016/j.ijbiomac.2023.123640,glycation-associated site,Lys,206,207,LYS,216,72.174,2.516,69.658,1.4,960,1OVA chain A protein plus chain A NAG
+Mao_2023,10.1016/j.ijbiomac.2023.123640,glycation-associated site,Lys,263,264,LYS,271,72.924,0.605,72.319,1.4,960,1OVA chain A protein plus chain A NAG
+Mao_2023,10.1016/j.ijbiomac.2023.123640,glycation-associated site,Lys,322,323,LYS,328,66.023,0.0,66.023,1.4,960,1OVA chain A protein plus chain A NAG
+Mao_2023,10.1016/j.ijbiomac.2023.123640,glycation-associated site,Arg,381,382,ARG,387,12.621,0.0,12.621,1.4,960,1OVA chain A protein plus chain A NAG

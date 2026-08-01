@@ -88,6 +88,27 @@ Modification-site/epitope relationship module:
 - produces two machine-readable tables, a Markdown report, an SVG chart and
   epitope selections in the PyMOL script.
 
+Solvent-accessibility module:
+
+- implements deterministic Shrake–Rupley SASA with 960 Fibonacci-sphere points
+  per atom and a 1.4 Å solvent probe;
+- uses Bondi-style radii for the elements present in 1OVA;
+- includes chain-A protein atoms and the chain-A crystallographic NAG as the
+  occlusion context;
+- reports absolute total, backbone and side-chain SASA for 383 resolved
+  residues, all annotated sites and both IEDB epitope intervals;
+- avoids assigning exposed/buried labels without method-specific reference
+  maxima.
+
+Evidence-quality module:
+
+- classifies every public record by provenance, granularity, replication status
+  and quantitative reanalysis readiness;
+- distinguishes abstract summaries, abstract residue annotations and IEDB
+  experimental-record aggregates;
+- uses descriptive classes rather than unsupported numerical quality scores;
+- explicitly records the principal limitation of every evidence class.
+
 Current chain-A mapping includes:
 
 | Publication site | UniProt site | PDB site | Distance to NAG |
@@ -128,6 +149,13 @@ Generated locally:
 - `outputs/modification_site_epitope_distances.csv`
 - `outputs/site_epitope_distances.svg`
 - `outputs/site_epitope_report.md`
+- `outputs/residue_sasa.csv`
+- `outputs/annotated_site_sasa.csv`
+- `outputs/epitope_sasa_summary.csv`
+- `outputs/annotated_site_sasa.svg`
+- `outputs/sasa_report.md`
+- `outputs/evidence_quality_classification.csv`
+- `outputs/evidence_quality_report.md`
 - `outputs/hwang_2014_relative_response.svg`
 - `outputs/wang_2013_glycation_extent.svg`
 - `outputs/structure_report.md`
@@ -176,6 +204,17 @@ Site-to-epitope distances are minimum Cα distances in 1OVA chain A. A 0 Å
 value occurs when the annotated site is itself part of the epitope interval;
 it is not evidence of binding or causal immune modulation.
 
+SASA values are absolute geometric estimates for a single crystallographic
+state. Crystal packing, absent hydrogens and conformational dynamics can affect
+the values. Accessibility does not establish chemical reactivity or immune
+recognition. The implementation follows the method of
+[Shrake and Rupley (1973)](https://doi.org/10.1016/0006-3495(73)90011-9)
+with elemental radii based on [Bondi (1964)](https://doi.org/10.1021/j100785a001).
+
+Evidence-quality classes describe what the available public record can support;
+they are not rankings of biological truth and do not replace formal study-level
+risk-of-bias assessment.
+
 ## Roadmap
 
 - [x] Replace synthetic examples with traceable public data
@@ -185,9 +224,12 @@ it is not evidence of binding or causal immune modulation.
 - [x] Integrate a conservative reference set of experimentally observed OVA
   T-cell epitopes from IEDB
 - [x] Analyze spatial relationships between modification sites and epitopes
-- [ ] Add solvent-accessible surface-area calculations
-- [ ] Add evidence-quality classification
+- [x] Add solvent-accessible surface-area calculations
+- [x] Add evidence-quality classification
 - [x] Add automated validation with GitHub Actions
+
+All original roadmap items are complete in version 1.0.0. Future work should be
+tracked as separately scoped milestones with explicit data-provenance criteria.
 
 ## Privacy
 

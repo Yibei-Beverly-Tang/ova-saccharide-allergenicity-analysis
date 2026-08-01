@@ -1,7 +1,7 @@
 cff-version: 1.2.0
 message: "If you use this software, please cite the repository and the primary data sources listed in the README."
 title: "OVA–Saccharide Allergenicity Analysis"
-version: 0.5.0
+version: 1.0.0
 date-released: 2026-08-02
 authors:
   - family-names: "Tang"

@@ -13,6 +13,7 @@ from .evidence import (
 )
 from .epitopes import EPITOPE_COLUMNS, map_epitopes_to_sequence, read_iedb_epitopes
 from .protein import analyze_record, read_fasta
+from .quality import QUALITY_FIELDS, classify_evidence
 from .report import (
     write_csv,
     write_epitope_report,
@@ -25,7 +26,11 @@ from .report import (
     write_structure_svg,
     write_site_epitope_report,
     write_site_epitope_svg,
+    write_quality_report,
+    write_sasa_report,
+    write_sasa_svg,
 )
+from .sasa import calculate_residue_sasa, summarize_sasa_targets
 from .structure import (
     analyze_structure_sites,
     analyze_epitope_structure_relationships,
@@ -81,6 +86,15 @@ def main(argv: list[str] | None = None) -> int:
             args.structure_cif,
         )
     )
+    residue_sasa = calculate_residue_sasa(
+        records[0].sequence,
+        args.structure_pdb,
+        args.structure_cif,
+    )
+    site_sasa, epitope_sasa = summarize_sasa_targets(
+        residue_sasa, structure_sites, epitopes
+    )
+    quality_rows = classify_evidence(evidence, sites, epitopes)
 
     write_protein_summary(output / "protein_summary.csv", proteins)
     write_csv(output / "literature_evidence.csv", evidence, list(EVIDENCE_COLUMNS))
@@ -149,6 +163,39 @@ def main(argv: list[str] | None = None) -> int:
         epitope_structure,
         site_epitope_relationships,
     )
+    residue_sasa_fields = [
+        "uniprot_position", "residue_one_letter", "pdb_id", "pdb_chain",
+        "pdb_residue_name", "pdb_residue_id", "atom_count",
+        "total_sasa_angstrom2", "backbone_sasa_angstrom2",
+        "sidechain_sasa_angstrom2", "probe_radius_angstrom",
+        "sphere_point_count", "occlusion_context",
+    ]
+    write_csv(output / "residue_sasa.csv", residue_sasa, residue_sasa_fields)
+    site_sasa_fields = [
+        "study_id", "doi", "annotation_type", "residue", "reported_position",
+        "uniprot_position", "pdb_residue_name", "pdb_residue_id",
+        "total_sasa_angstrom2", "backbone_sasa_angstrom2",
+        "sidechain_sasa_angstrom2", "probe_radius_angstrom",
+        "sphere_point_count", "occlusion_context",
+    ]
+    write_csv(output / "annotated_site_sasa.csv", site_sasa, site_sasa_fields)
+    epitope_sasa_fields = epitope_fields + [
+        "resolved_residue_count", "total_sasa_angstrom2",
+        "mean_residue_sasa_angstrom2", "sidechain_sasa_angstrom2",
+        "mean_sidechain_sasa_angstrom2", "probe_radius_angstrom",
+        "sphere_point_count", "occlusion_context",
+    ]
+    write_csv(output / "epitope_sasa_summary.csv", epitope_sasa, epitope_sasa_fields)
+    write_sasa_svg(output / "annotated_site_sasa.svg", site_sasa)
+    write_sasa_report(
+        output / "sasa_report.md", residue_sasa, site_sasa, epitope_sasa
+    )
+    write_csv(
+        output / "evidence_quality_classification.csv",
+        quality_rows,
+        QUALITY_FIELDS,
+    )
+    write_quality_report(output / "evidence_quality_report.md", quality_rows)
     structure_fields = [
         "study_id", "doi", "annotation_type", "residue", "reported_position",
         "uniprot_position", "pdb_id", "pdb_chain", "pdb_residue_name",
