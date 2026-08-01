@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.3.1] - 2026-08-02
+
+### Added
+
+- GitHub Actions validation on Python 3.10 and 3.12.
+- End-to-end test coverage for the public-data command-line workflow.
+- Optional dependency groups for experimental analysis and testing.
+
+### Changed
+
+- Added DOI, PMID, year, finite-value and percentage-range validation for
+  literature evidence.
+- Added validation of site-annotation evidence levels.
+- Made the generated PyMOL script path configurable.
+- Synchronized the package version with project metadata.
+- Added ignore rules for caches, build artifacts and designated private-data
+  directories.
+
 ## [0.3.0] - 2026-07-31
 
 ### Added
@@ -27,4 +45,3 @@
 - Traceable publication-reported numerical evidence.
 - Publication-to-UniProt residue validation.
 - Privacy and evidence-provenance safeguards.
-

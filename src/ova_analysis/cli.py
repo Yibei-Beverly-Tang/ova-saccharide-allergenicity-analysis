@@ -37,6 +37,11 @@ def parser() -> argparse.ArgumentParser:
     result.add_argument("--structure-pdb", default="structures/1OVA.pdb")
     result.add_argument("--structure-cif", default="structures/1OVA.cif")
     result.add_argument("--out-dir", default="outputs")
+    result.add_argument(
+        "--pymol-script",
+        default="scripts/visualize_1ova_sites.pml",
+        help="Path for the generated PyMOL visualization script.",
+    )
     return result
 
 
@@ -106,9 +111,9 @@ def main(argv: list[str] | None = None) -> int:
         structure_sites,
         pairwise,
     )
-    scripts = Path("scripts")
-    scripts.mkdir(exist_ok=True)
-    write_pymol_script(scripts / "visualize_1ova_sites.pml", structure_sites)
+    pymol_script = Path(args.pymol_script)
+    pymol_script.parent.mkdir(parents=True, exist_ok=True)
+    write_pymol_script(pymol_script, structure_sites)
     print(f"Analysis complete: {output.resolve()}")
     return 0
 

@@ -104,8 +104,13 @@ Generated locally:
 Run tests:
 
 ```bash
-PYTHONPATH=src python -m unittest discover -s tests -v
+python -m pip install -e ".[test]"
+python -m unittest discover -s tests -v
 ```
+
+The core `ova-analysis` workflow has no third-party runtime dependencies. The
+test extra also installs the scientific Python packages used by the separate
+simulated-experiment demonstration.
 
 ## Important evidence limitation
 
@@ -136,12 +141,13 @@ calculation, and B-factors are refinement-dependent.
 - [ ] Analyze spatial relationships between modification sites and epitopes
 - [ ] Add solvent-accessible surface-area calculations
 - [ ] Add evidence-quality classification
-- [ ] Add automated validation with GitHub Actions
+- [x] Add automated validation with GitHub Actions
 
 ## Privacy
 
-See [PRIVACY.md](PRIVACY.md). Generated outputs and private-data directories are
-ignored to reduce accidental disclosure risk.
+See [PRIVACY.md](PRIVACY.md). Transient caches and designated private-data
+directories are ignored to reduce accidental disclosure risk. The public,
+reproducible example outputs in this repository remain version-controlled.
 
 ## License
 

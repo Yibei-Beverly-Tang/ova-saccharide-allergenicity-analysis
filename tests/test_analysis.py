@@ -2,7 +2,12 @@ import sys
 import unittest
 from pathlib import Path
 
-import pandas as pd
+try:
+    import pandas as pd
+except ModuleNotFoundError as exc:
+    raise unittest.SkipTest(
+        "experimental-analysis tests require the project test extra"
+    ) from exc
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]

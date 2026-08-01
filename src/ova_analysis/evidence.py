@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import csv
+import math
 from pathlib import Path
+import re
 
 
 EVIDENCE_COLUMNS = (
@@ -14,6 +16,30 @@ SITE_COLUMNS = (
     "study_id", "publication_year", "doi", "pmid", "annotation_type", "residue",
     "reported_position", "reference_context", "evidence_level", "notes",
 )
+DOI_PATTERN = re.compile(r"^10\.\d{4,9}/\S+$", re.IGNORECASE)
+EVIDENCE_VALUE_LEVELS = {"abstract_reported_summary"}
+SITE_EVIDENCE_LEVELS = {"abstract_reported_annotation"}
+BOUNDED_PERCENT_METRICS = {"sequence_coverage", "modified_lysines"}
+
+
+def _validate_source(row: dict[str, str], line: int) -> None:
+    """Validate identifiers shared by numerical and site evidence."""
+    if not row["study_id"] or not row["doi"]:
+        raise ValueError(f"Missing study_id or doi on line {line}")
+    if not DOI_PATTERN.fullmatch(row["doi"]):
+        raise ValueError(f"Invalid DOI on line {line}: {row['doi']}")
+    if row.get("pmid") and not row["pmid"].isdigit():
+        raise ValueError(f"Invalid PMID on line {line}: {row['pmid']}")
+
+
+def _parse_year(value: str, line: int) -> int:
+    try:
+        year = int(value)
+    except ValueError as exc:
+        raise ValueError(f"Invalid publication year on line {line}") from exc
+    if not 1900 <= year <= 2100:
+        raise ValueError(f"Implausible publication year on line {line}")
+    return year
 
 
 def _read(path: str | Path, required: tuple[str, ...]) -> list[dict[str, str]]:
@@ -31,16 +57,22 @@ def _read(path: str | Path, required: tuple[str, ...]) -> list[dict[str, str]]:
 def read_literature_values(path: str | Path) -> list[dict[str, object]]:
     parsed: list[dict[str, object]] = []
     for line, row in enumerate(_read(path, EVIDENCE_COLUMNS), start=2):
-        if not row["study_id"] or not row["doi"] or not row["metric"]:
-            raise ValueError(f"Missing study_id, doi, or metric on line {line}")
-        if row["evidence_level"] != "abstract_reported_summary":
+        _validate_source(row, line)
+        if not row["metric"] or not row["unit"] or not row["source_location"]:
+            raise ValueError(f"Missing metric, unit, or source location on line {line}")
+        if row["evidence_level"] not in EVIDENCE_VALUE_LEVELS:
             raise ValueError(f"Unsupported evidence level on line {line}")
         try:
-            year, value = int(row["publication_year"]), float(row["value"])
+            value = float(row["value"])
         except ValueError as exc:
-            raise ValueError(f"Invalid year or value on line {line}") from exc
-        if not 1900 <= year <= 2100:
-            raise ValueError(f"Implausible year on line {line}")
+            raise ValueError(f"Invalid value on line {line}") from exc
+        if not math.isfinite(value):
+            raise ValueError(f"Non-finite value on line {line}")
+        if "percent" in row["unit"].lower() and value < 0:
+            raise ValueError(f"Negative percentage on line {line}")
+        if row["metric"] in BOUNDED_PERCENT_METRICS and value > 100:
+            raise ValueError(f"Bounded percentage above 100 on line {line}")
+        year = _parse_year(row["publication_year"], line)
         parsed.append({**row, "publication_year": year, "value": value})
     return parsed
 
@@ -48,15 +80,18 @@ def read_literature_values(path: str | Path) -> list[dict[str, object]]:
 def read_site_annotations(path: str | Path) -> list[dict[str, object]]:
     parsed: list[dict[str, object]] = []
     for line, row in enumerate(_read(path, SITE_COLUMNS), start=2):
-        if not row["study_id"] or not row["doi"] or not row["residue"]:
-            raise ValueError(f"Missing study_id, doi, or residue on line {line}")
+        _validate_source(row, line)
+        if not row["residue"] or not row["annotation_type"]:
+            raise ValueError(f"Missing residue or annotation type on line {line}")
+        if row["evidence_level"] not in SITE_EVIDENCE_LEVELS:
+            raise ValueError(f"Unsupported site evidence level on line {line}")
         try:
-            year = int(row["publication_year"])
             position = int(row["reported_position"])
         except ValueError as exc:
-            raise ValueError(f"Invalid year or residue position on line {line}") from exc
+            raise ValueError(f"Invalid residue position on line {line}") from exc
         if position < 1:
             raise ValueError(f"Invalid residue position on line {line}")
+        year = _parse_year(row["publication_year"], line)
         parsed.append({**row, "publication_year": year, "reported_position": position})
     return parsed
 
