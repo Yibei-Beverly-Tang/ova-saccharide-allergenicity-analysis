@@ -23,9 +23,12 @@ from .report import (
     write_report,
     write_structure_report,
     write_structure_svg,
+    write_site_epitope_report,
+    write_site_epitope_svg,
 )
 from .structure import (
     analyze_structure_sites,
+    analyze_epitope_structure_relationships,
     read_structure_metadata,
 )
 
@@ -69,6 +72,15 @@ def main(argv: list[str] | None = None) -> int:
         args.structure_cif,
     )
     structure_metadata = read_structure_metadata(args.structure_pdb)
+    epitope_structure, site_epitope_relationships = (
+        analyze_epitope_structure_relationships(
+            epitopes,
+            structure_sites,
+            records[0].sequence,
+            args.structure_pdb,
+            args.structure_cif,
+        )
+    )
 
     write_protein_summary(output / "protein_summary.csv", proteins)
     write_csv(output / "literature_evidence.csv", evidence, list(EVIDENCE_COLUMNS))
@@ -106,6 +118,37 @@ def main(argv: list[str] | None = None) -> int:
         output / "iedb_epitope_map.svg", epitopes, len(records[0].sequence)
     )
     write_epitope_report(output / "epitope_report.md", epitopes)
+    epitope_structure_fields = epitope_fields + [
+        "pdb_id", "pdb_chain", "total_residue_count", "resolved_residue_count",
+        "coordinate_coverage_percent", "pdb_start_residue_id", "pdb_end_residue_id",
+    ]
+    write_csv(
+        output / "epitope_structure_mapping.csv",
+        epitope_structure,
+        epitope_structure_fields,
+    )
+    site_epitope_fields = [
+        "site_key", "study_id", "annotation_type", "reported_site",
+        "site_uniprot_position", "site_pdb_residue_id", "iedb_epitope_id",
+        "epitope_sequence", "epitope_uniprot_start", "epitope_uniprot_end",
+        "site_within_epitope", "sequence_separation_residues",
+        "nearest_epitope_uniprot_position", "nearest_epitope_residue",
+        "nearest_epitope_pdb_residue_id", "min_ca_distance_angstrom",
+        "pdb_id", "pdb_chain",
+    ]
+    write_csv(
+        output / "modification_site_epitope_distances.csv",
+        site_epitope_relationships,
+        site_epitope_fields,
+    )
+    write_site_epitope_svg(
+        output / "site_epitope_distances.svg", site_epitope_relationships
+    )
+    write_site_epitope_report(
+        output / "site_epitope_report.md",
+        epitope_structure,
+        site_epitope_relationships,
+    )
     structure_fields = [
         "study_id", "doi", "annotation_type", "residue", "reported_position",
         "uniprot_position", "pdb_id", "pdb_chain", "pdb_residue_name",
@@ -128,7 +171,7 @@ def main(argv: list[str] | None = None) -> int:
     )
     pymol_script = Path(args.pymol_script)
     pymol_script.parent.mkdir(parents=True, exist_ok=True)
-    write_pymol_script(pymol_script, structure_sites)
+    write_pymol_script(pymol_script, structure_sites, epitope_structure)
     print(f"Analysis complete: {output.resolve()}")
     return 0
 

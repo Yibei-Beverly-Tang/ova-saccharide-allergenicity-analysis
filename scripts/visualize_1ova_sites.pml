@@ -16,6 +16,10 @@ show sticks, n_glycosylation_site
 color firebrick, n_glycosylation_site
 select annotated_sites, ova_1ova and chain A and resi 298+97+105+216+271+328+387
 label annotated_sites and name CA, "%s%s" % (resn, resi)
+select iedb_epitope_58560, ova_1ova and chain A and resi 265-272
+color teal, iedb_epitope_58560
+select iedb_epitope_28676, ova_1ova and chain A and resi 329-345
+color violet, iedb_epitope_28676
 show surface, ova_1ova and chain A
 set transparency, 0.78, ova_1ova and chain A
 set label_size, 16

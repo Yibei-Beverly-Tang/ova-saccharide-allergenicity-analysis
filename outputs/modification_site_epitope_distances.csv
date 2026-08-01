@@ -1,0 +1,15 @@
+site_key,study_id,annotation_type,reported_site,site_uniprot_position,site_pdb_residue_id,iedb_epitope_id,epitope_sequence,epitope_uniprot_start,epitope_uniprot_end,site_within_epitope,sequence_separation_residues,nearest_epitope_uniprot_position,nearest_epitope_residue,nearest_epitope_pdb_residue_id,min_ca_distance_angstrom,pdb_id,pdb_chain
+Ito_2007:292,Ito_2007,N-linked glycosylation,Asn-292,293,298,58560,SIINFEKL,258,265,False,28,258,S,265,23.091,1OVA,A
+Ito_2007:292,Ito_2007,N-linked glycosylation,Asn-292,293,298,28676,ISQAVHAAHAEINEAGR,324,340,False,31,328,V,333,4.957,1OVA,A
+Mao_2023:84,Mao_2023,glycation-associated site,Arg-84,85,97,58560,SIINFEKL,258,265,False,173,262,F,269,21.916,1OVA,A
+Mao_2023:84,Mao_2023,glycation-associated site,Arg-84,85,97,28676,ISQAVHAAHAEINEAGR,324,340,False,239,329,H,334,18.759,1OVA,A
+Mao_2023:92,Mao_2023,glycation-associated site,Lys-92,93,105,58560,SIINFEKL,258,265,False,165,262,F,269,27.904,1OVA,A
+Mao_2023:92,Mao_2023,glycation-associated site,Lys-92,93,105,28676,ISQAVHAAHAEINEAGR,324,340,False,231,333,A,338,17.595,1OVA,A
+Mao_2023:206,Mao_2023,glycation-associated site,Lys-206,207,216,58560,SIINFEKL,258,265,False,51,258,S,265,26.056,1OVA,A
+Mao_2023:206,Mao_2023,glycation-associated site,Lys-206,207,216,28676,ISQAVHAAHAEINEAGR,324,340,False,117,336,N,341,18.095,1OVA,A
+Mao_2023:263,Mao_2023,glycation-associated site,Lys-263,264,271,58560,SIINFEKL,258,265,True,0,264,K,271,0.0,1OVA,A
+Mao_2023:263,Mao_2023,glycation-associated site,Lys-263,264,271,28676,ISQAVHAAHAEINEAGR,324,340,False,60,331,A,336,25.212,1OVA,A
+Mao_2023:322,Mao_2023,glycation-associated site,Lys-322,323,328,58560,SIINFEKL,258,265,False,58,262,F,269,32.098,1OVA,A
+Mao_2023:322,Mao_2023,glycation-associated site,Lys-322,323,328,28676,ISQAVHAAHAEINEAGR,324,340,False,1,324,I,329,3.805,1OVA,A
+Mao_2023:381,Mao_2023,glycation-associated site,Arg-381,382,387,58560,SIINFEKL,258,265,False,117,260,I,267,12.472,1OVA,A
+Mao_2023:381,Mao_2023,glycation-associated site,Arg-381,382,387,28676,ISQAVHAAHAEINEAGR,324,340,False,42,333,A,338,12.93,1OVA,A

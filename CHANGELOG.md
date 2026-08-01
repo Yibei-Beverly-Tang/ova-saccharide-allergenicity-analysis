@@ -1,5 +1,25 @@
 # Changelog
 
+## [0.5.0] - 2026-08-02
+
+### Added
+
+- Complete residue-level mapping of both validated IEDB epitope intervals to
+  1OVA chain A with coordinate-coverage reporting.
+- Fourteen modification-site/epitope relationships with sequence separation,
+  nearest epitope residue and minimum Cα distance.
+- Machine-readable structure and distance tables, Markdown report, SVG chart
+  and PyMOL epitope selections.
+- Regression checks for the exact K264 sequence overlap and the independently
+  calculated 4.957 Å Asn293-to-IEDB-28676 minimum Cα distance.
+
+### Scientific safeguards
+
+- A 0 Å self-distance is explicitly labeled as sequence overlap rather than an
+  interaction.
+- Cα proximity is not interpreted as binding, accessibility, immune modulation
+  or clinical allergenicity.
+
 ## [0.4.0] - 2026-08-02
 
 ### Added

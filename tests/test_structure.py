@@ -2,9 +2,11 @@ import unittest
 from pathlib import Path
 
 from ova_analysis.evidence import map_sites_to_sequence, read_site_annotations
+from ova_analysis.epitopes import map_epitopes_to_sequence, read_iedb_epitopes
 from ova_analysis.protein import read_fasta
 from ova_analysis.structure import (
     analyze_structure_sites,
+    analyze_epitope_structure_relationships,
     read_atoms,
     read_poly_seq_scheme,
     read_structure_metadata,
@@ -52,7 +54,45 @@ class StructureTests(unittest.TestCase):
         }
         self.assertEqual(residues, {("A", 393), ("B", 393), ("C", 393), ("D", 393)})
 
+    def test_epitope_site_relationships_use_resolved_coordinates(self):
+        record = read_fasta(ROOT / "sequences/ova_uniprot_P01012.fasta")[0]
+        sites = map_sites_to_sequence(
+            read_site_annotations(ROOT / "data/public_site_annotations.csv"),
+            record.sequence,
+        )
+        structure_sites, _ = analyze_structure_sites(
+            sites,
+            record.sequence,
+            ROOT / "structures/1OVA.pdb",
+            ROOT / "structures/1OVA.cif",
+        )
+        epitopes = map_epitopes_to_sequence(
+            read_iedb_epitopes(ROOT / "data/public_iedb_epitopes.csv"),
+            record.sequence,
+        )
+        mapped, relationships = analyze_epitope_structure_relationships(
+            epitopes,
+            structure_sites,
+            record.sequence,
+            ROOT / "structures/1OVA.pdb",
+            ROOT / "structures/1OVA.cif",
+        )
+        self.assertEqual(len(mapped), 2)
+        self.assertTrue(all(row["coordinate_coverage_percent"] == 100.0 for row in mapped))
+        self.assertEqual(len(relationships), 14)
+        overlap = [row for row in relationships if row["site_within_epitope"]]
+        self.assertEqual(len(overlap), 1)
+        self.assertEqual(overlap[0]["site_uniprot_position"], 264)
+        self.assertEqual(overlap[0]["iedb_epitope_id"], 58560)
+        self.assertEqual(overlap[0]["min_ca_distance_angstrom"], 0.0)
+        glycan_to_class_ii = next(
+            row for row in relationships
+            if row["site_uniprot_position"] == 293
+            and row["iedb_epitope_id"] == 28676
+        )
+        self.assertEqual(glycan_to_class_ii["nearest_epitope_uniprot_position"], 328)
+        self.assertEqual(glycan_to_class_ii["min_ca_distance_angstrom"], 4.957)
+
 
 if __name__ == "__main__":
     unittest.main()
-

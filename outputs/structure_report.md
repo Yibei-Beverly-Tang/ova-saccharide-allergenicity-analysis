@@ -44,7 +44,8 @@ The distance to NAG is the minimum heavy-atom distance to the crystallographic N
 - Crystal coordinates describe one experimental structural state.
 - A short geometric distance does not demonstrate biochemical interaction.
 - B-factors are structure- and refinement-dependent.
-- Epitope proximity and solvent accessibility require separate analyses.
+- Epitope proximity is reported separately in `site_epitope_report.md`.
+- Solvent accessibility requires a separate analysis.
 
 ![Distance of annotated sites to NAG](1ova_site_distance_to_nag.svg)
 

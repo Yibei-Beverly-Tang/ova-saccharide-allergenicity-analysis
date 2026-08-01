@@ -78,6 +78,16 @@ Three-dimensional structure module:
 - calculates pairwise Cα distances, chain-centroid radius and mean B-factor;
 - produces a structure report, SVG chart and PyMOL visualization script.
 
+Modification-site/epitope relationship module:
+
+- maps every residue in the two validated IEDB epitope intervals to 1OVA;
+- reports coordinate coverage before calculating distances;
+- calculates the minimum Cα distance from each modification site to each
+  epitope and identifies the nearest epitope residue;
+- distinguishes sequence overlap from three-dimensional proximity;
+- produces two machine-readable tables, a Markdown report, an SVG chart and
+  epitope selections in the PyMOL script.
+
 Current chain-A mapping includes:
 
 | Publication site | UniProt site | PDB site | Distance to NAG |
@@ -114,6 +124,10 @@ Generated locally:
 - `outputs/validated_iedb_epitopes.csv`
 - `outputs/iedb_epitope_map.svg`
 - `outputs/epitope_report.md`
+- `outputs/epitope_structure_mapping.csv`
+- `outputs/modification_site_epitope_distances.csv`
+- `outputs/site_epitope_distances.svg`
+- `outputs/site_epitope_report.md`
 - `outputs/hwang_2014_relative_response.svg`
 - `outputs/wang_2013_glycation_extent.svg`
 - `outputs/structure_report.md`
@@ -158,6 +172,10 @@ They do not demonstrate biochemical interaction or altered allergenicity.
 Chain-centroid distance is not a substitute for solvent-accessibility
 calculation, and B-factors are refinement-dependent.
 
+Site-to-epitope distances are minimum Cα distances in 1OVA chain A. A 0 Å
+value occurs when the annotated site is itself part of the epitope interval;
+it is not evidence of binding or causal immune modulation.
+
 ## Roadmap
 
 - [x] Replace synthetic examples with traceable public data
@@ -166,7 +184,7 @@ calculation, and B-factors are refinement-dependent.
 - [x] Map public modification sites onto the experimental PDB 1OVA structure
 - [x] Integrate a conservative reference set of experimentally observed OVA
   T-cell epitopes from IEDB
-- [ ] Analyze spatial relationships between modification sites and epitopes
+- [x] Analyze spatial relationships between modification sites and epitopes
 - [ ] Add solvent-accessible surface-area calculations
 - [ ] Add evidence-quality classification
 - [x] Add automated validation with GitHub Actions

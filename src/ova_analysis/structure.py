@@ -242,3 +242,115 @@ def analyze_structure_sites(
                 ),
             })
     return mapped, pairwise
+
+
+def analyze_epitope_structure_relationships(
+    epitopes: list[dict[str, object]],
+    structure_sites: list[dict[str, object]],
+    sequence: str,
+    pdb_path: str | Path,
+    cif_path: str | Path,
+    chain: str = "A",
+) -> tuple[list[dict[str, object]], list[dict[str, object]]]:
+    """Map epitope intervals to 1OVA and calculate minimum site-to-epitope Cα distances."""
+    atoms = read_atoms(pdb_path)
+    scheme = read_poly_seq_scheme(cif_path)
+    validate_chain_sequence(scheme, sequence, chain)
+    scheme_by_position = {
+        int(row["seq_id"]): row
+        for row in scheme
+        if row["pdb_strand_id"] == chain
+    }
+    ca_by_position: dict[int, Atom] = {}
+    pdb_id_by_position: dict[int, str] = {}
+    for position, row in scheme_by_position.items():
+        if row["auth_seq_num"] is None:
+            continue
+        pdb_number = int(row["auth_seq_num"])
+        insertion = "" if row["pdb_ins_code"] in {".", "?"} else str(row["pdb_ins_code"])
+        residue_atoms = _residue_atoms(atoms, chain, pdb_number, insertion)
+        ca = next((atom for atom in residue_atoms if atom.atom_name == "CA"), None)
+        if ca is not None:
+            ca_by_position[position] = ca
+            pdb_id_by_position[position] = f"{pdb_number}{insertion}"
+
+    epitope_mappings: list[dict[str, object]] = []
+    resolved_positions_by_epitope: dict[int, list[int]] = {}
+    for epitope in epitopes:
+        identifier = int(epitope["iedb_epitope_id"])
+        start = int(epitope["uniprot_start"])
+        end = int(epitope["uniprot_end"])
+        peptide = str(epitope["linear_sequence"])
+        if sequence[start - 1:end] != peptide:
+            raise ValueError(f"IEDB epitope {identifier} no longer matches P01012")
+        positions = list(range(start, end + 1))
+        resolved = [position for position in positions if position in ca_by_position]
+        if not resolved:
+            pdb_start = pdb_end = ""
+        else:
+            pdb_start = pdb_id_by_position[resolved[0]]
+            pdb_end = pdb_id_by_position[resolved[-1]]
+        resolved_positions_by_epitope[identifier] = resolved
+        epitope_mappings.append({
+            **epitope,
+            "pdb_id": "1OVA",
+            "pdb_chain": chain,
+            "total_residue_count": len(positions),
+            "resolved_residue_count": len(resolved),
+            "coordinate_coverage_percent": round(100 * len(resolved) / len(positions), 3),
+            "pdb_start_residue_id": pdb_start,
+            "pdb_end_residue_id": pdb_end,
+        })
+
+    relationships: list[dict[str, object]] = []
+    for site in structure_sites:
+        site_position = int(site["uniprot_position"])
+        site_ca = ca_by_position.get(site_position)
+        for epitope in epitopes:
+            identifier = int(epitope["iedb_epitope_id"])
+            start = int(epitope["uniprot_start"])
+            end = int(epitope["uniprot_end"])
+            candidates = resolved_positions_by_epitope[identifier]
+            within = start <= site_position <= end
+            sequence_separation = 0 if within else min(
+                abs(site_position - start), abs(site_position - end)
+            )
+            if site_ca is None or not candidates:
+                nearest_position = None
+                nearest_distance = None
+            else:
+                nearest_position = min(
+                    candidates,
+                    key=lambda position: _distance(site_ca, ca_by_position[position]),
+                )
+                nearest_distance = _distance(site_ca, ca_by_position[nearest_position])
+            relationships.append({
+                "site_key": f"{site['study_id']}:{site['reported_position']}",
+                "study_id": site["study_id"],
+                "annotation_type": site["annotation_type"],
+                "reported_site": f"{site['residue']}-{site['reported_position']}",
+                "site_uniprot_position": site_position,
+                "site_pdb_residue_id": site["pdb_residue_id"],
+                "iedb_epitope_id": identifier,
+                "epitope_sequence": epitope["linear_sequence"],
+                "epitope_uniprot_start": start,
+                "epitope_uniprot_end": end,
+                "site_within_epitope": within,
+                "sequence_separation_residues": sequence_separation,
+                "nearest_epitope_uniprot_position": (
+                    nearest_position if nearest_position is not None else ""
+                ),
+                "nearest_epitope_residue": (
+                    sequence[nearest_position - 1] if nearest_position is not None else ""
+                ),
+                "nearest_epitope_pdb_residue_id": (
+                    pdb_id_by_position[nearest_position]
+                    if nearest_position is not None else ""
+                ),
+                "min_ca_distance_angstrom": (
+                    round(nearest_distance, 3) if nearest_distance is not None else ""
+                ),
+                "pdb_id": "1OVA",
+                "pdb_chain": chain,
+            })
+    return epitope_mappings, relationships

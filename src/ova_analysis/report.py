@@ -177,6 +177,120 @@ def write_epitope_report(path: Path, rows: list[dict[str, object]]) -> None:
     path.write_text("\n".join(lines), encoding="utf-8")
 
 
+def write_site_epitope_svg(
+    path: Path, relationships: list[dict[str, object]]
+) -> None:
+    """Draw minimum Cα distances for modification-site/epitope pairs."""
+    resolved = [
+        row for row in relationships if row["min_ca_distance_angstrom"] != ""
+    ]
+    if not resolved:
+        raise ValueError("Cannot draw site-to-epitope distances without coordinates")
+    resolved.sort(key=lambda row: float(row["min_ca_distance_angstrom"]))
+    width, height = 980, 115 + 44 * len(resolved)
+    left, chart_width = 430, 430
+    maximum = max(float(row["min_ca_distance_angstrom"]) for row in resolved)
+    scale = chart_width / max(1.0, maximum * 1.08)
+    parts = [
+        f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" '
+        f'viewBox="0 0 {width} {height}">',
+        '<rect width="100%" height="100%" fill="#fbfcfe"/>',
+        '<style>text{font-family:Arial,sans-serif;fill:#172033}.title{font-size:20px;'
+        'font-weight:700}.label{font-size:12px}.value{font-size:12px;fill:#43506a}</style>',
+        '<text x="28" y="36" class="title">1OVA modification-site to IEDB epitope distance</text>',
+        '<text x="28" y="61" class="value">Minimum Cα distance; chain A; overlap gives 0 Å</text>',
+    ]
+    for index, row in enumerate(resolved):
+        y = 84 + 44 * index
+        distance = float(row["min_ca_distance_angstrom"])
+        label = html.escape(
+            f"{row['reported_site']} / P01012 {row['site_uniprot_position']}  ↔  "
+            f"IEDB {row['iedb_epitope_id']} ({row['epitope_uniprot_start']}-"
+            f"{row['epitope_uniprot_end']})"
+        )
+        color = "#e76f51" if row["site_within_epitope"] else "#457b9d"
+        bar_width = max(3.0, distance * scale)
+        parts.extend([
+            f'<text x="28" y="{y + 17}" class="label">{label}</text>',
+            f'<rect x="{left}" y="{y}" width="{bar_width:.2f}" height="22" '
+            f'rx="4" fill="{color}"/>',
+            f'<text x="{left + bar_width + 8:.2f}" y="{y + 16}" '
+            f'class="value">{distance:.1f} Å</text>',
+        ])
+    parts.append("</svg>")
+    path.write_text("\n".join(parts), encoding="utf-8")
+
+
+def write_site_epitope_report(
+    path: Path,
+    epitope_mappings: list[dict[str, object]],
+    relationships: list[dict[str, object]],
+) -> None:
+    """Write the 1OVA modification-site/epitope geometry report."""
+    resolved_relationships = [
+        row for row in relationships if row["min_ca_distance_angstrom"] != ""
+    ]
+    lines = [
+        "# OVA Modification-Site and Epitope Spatial Report",
+        "",
+        "> Distances are geometric descriptors for chain A of experimental structure "
+        "1OVA. They do not demonstrate biochemical interaction or altered allergenicity.",
+        "",
+        "## Epitope coordinate coverage",
+        "",
+        "| IEDB epitope | P01012 interval | PDB interval | Resolved residues | Coverage |",
+        "|---|---:|---|---:|---:|",
+    ]
+    for row in epitope_mappings:
+        lines.append(
+            f"| [IEDB {row['iedb_epitope_id']}]({row['source_url']}) | "
+            f"{row['uniprot_start']}-{row['uniprot_end']} | "
+            f"{row['pdb_start_residue_id']}-{row['pdb_end_residue_id']} "
+            f"(chain {row['pdb_chain']}) | {row['resolved_residue_count']}/"
+            f"{row['total_residue_count']} | {row['coordinate_coverage_percent']}% |"
+        )
+    lines.extend([
+        "",
+        "## Site-to-epitope relationships",
+        "",
+        "| Reported site | P01012 site | IEDB epitope | Sequence separation | "
+        "Within epitope | Nearest epitope residue | Minimum Cα distance |",
+        "|---|---:|---|---:|---|---|---:|",
+    ])
+    for row in sorted(
+        resolved_relationships,
+        key=lambda item: float(item["min_ca_distance_angstrom"]),
+    ):
+        lines.append(
+            f"| {row['reported_site']} | {row['site_uniprot_position']} | "
+            f"[IEDB {row['iedb_epitope_id']}]"
+            f"(https://www.iedb.org/epitope/{row['iedb_epitope_id']}) | "
+            f"{row['sequence_separation_residues']} residues | "
+            f"{row['site_within_epitope']} | "
+            f"{row['nearest_epitope_residue']}{row['nearest_epitope_uniprot_position']} "
+            f"(PDB {row['nearest_epitope_pdb_residue_id']}) | "
+            f"{row['min_ca_distance_angstrom']} Å |"
+        )
+    lines.extend([
+        "",
+        "The minimum distance is measured between the modification site's Cα atom and "
+        "all resolved Cα atoms in the epitope interval. A site inside an epitope has a "
+        "trivial self-distance of 0 Å; this is sequence overlap, not evidence of an "
+        "interaction.",
+        "",
+        "## Interpretation limits",
+        "",
+        "- 1OVA is one crystallographic state and may not represent solution dynamics.",
+        "- Cα proximity does not measure side-chain contact, binding or accessibility.",
+        "- The IEDB snapshot is a conservative mouse T-cell reference set.",
+        "- These results do not establish human IgE binding or clinical food allergy.",
+        "",
+        "![Modification-site to epitope distances](site_epitope_distances.svg)",
+        "",
+    ])
+    path.write_text("\n".join(lines), encoding="utf-8")
+
+
 def write_report(
     path: Path,
     proteins: list[dict[str, object]],
@@ -290,7 +404,11 @@ def write_structure_svg(path: Path, rows: list[dict[str, object]]) -> None:
     path.write_text("\n".join(parts), encoding="utf-8")
 
 
-def write_pymol_script(path: Path, rows: list[dict[str, object]]) -> None:
+def write_pymol_script(
+    path: Path,
+    rows: list[dict[str, object]],
+    epitope_mappings: list[dict[str, object]] | None = None,
+) -> None:
     glycosylation_ids = [
         str(row["pdb_residue_id"])
         for row in rows if row["annotation_type"] == "N-linked glycosylation"
@@ -329,6 +447,13 @@ def write_pymol_script(path: Path, rows: list[dict[str, object]]) -> None:
         lines.extend([
             f"select annotated_sites, ova_1ova and chain A and resi {'+'.join(all_ids)}",
             'label annotated_sites and name CA, "%s%s" % (resn, resi)',
+        ])
+    for index, epitope in enumerate(epitope_mappings or [], start=1):
+        lines.extend([
+            f"select iedb_epitope_{epitope['iedb_epitope_id']}, ova_1ova and chain A "
+            f"and resi {epitope['pdb_start_residue_id']}-{epitope['pdb_end_residue_id']}",
+            f"color {'teal' if index % 2 else 'violet'}, "
+            f"iedb_epitope_{epitope['iedb_epitope_id']}",
         ])
     lines.extend([
         "show surface, ova_1ova and chain A",
@@ -402,7 +527,8 @@ def write_structure_report(
         "- Crystal coordinates describe one experimental structural state.",
         "- A short geometric distance does not demonstrate biochemical interaction.",
         "- B-factors are structure- and refinement-dependent.",
-        "- Epitope proximity and solvent accessibility require separate analyses.",
+        "- Epitope proximity is reported separately in `site_epitope_report.md`.",
+        "- Solvent accessibility requires a separate analysis.",
         "",
         "![Distance of annotated sites to NAG](1ova_site_distance_to_nag.svg)",
         "",
